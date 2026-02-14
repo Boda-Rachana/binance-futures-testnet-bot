@@ -1,9 +1,11 @@
 import os
 import logging
+import time
 from binance.client import Client
 from dotenv import load_dotenv
 
 load_dotenv()
+
 
 class BinanceFuturesClient:
     def __init__(self):
@@ -14,7 +16,14 @@ class BinanceFuturesClient:
             raise ValueError("API keys not found. Set BINANCE_API_KEY and BINANCE_API_SECRET")
 
         self.client = Client(api_key, api_secret)
+
+        # Set Futures Testnet URL
         self.client.FUTURES_URL = "https://testnet.binancefuture.com/fapi"
+
+        # Sync timestamp properly
+        server_time = self.client.futures_time()
+        local_time = int(time.time() * 1000)
+        self.client.timestamp_offset = server_time["serverTime"] - local_time
 
     def place_order(self, **order_data):
         try:

@@ -1,4 +1,4 @@
-from bot.client import BinanceFuturesClient
+from src.client import BinanceFuturesClient
 
 def create_order(symbol, side, order_type, quantity, price=None):
     client = BinanceFuturesClient()
