@@ -7,6 +7,7 @@ from src.limit_orders import place_limit_order
 from src.advanced.stop_limit import place_stop_limit_order
 from src.advanced.oco import place_oco_order
 from src.advanced.twap import place_twap_order
+from src.advanced.grid_strategy import place_grid_orders
 
 setup_logger()
 
@@ -22,6 +23,9 @@ def main():
     parser.add_argument("--take_profit_price", type=float, help="Take profit price for OCO orders")
     parser.add_argument("--intervals", type=int, help="Number of slices for TWAP")
     parser.add_argument("--interval_seconds", type=int, help="Seconds between TWAP slices")
+    parser.add_argument("--lower_price", type=float, help="Lower price for GRID strategy")
+    parser.add_argument("--upper_price", type=float, help="Upper price for GRID strategy")
+    parser.add_argument("--grid_levels", type=int, help="Number of grid levels")
 
     args = parser.parse_args()
 
@@ -120,6 +124,17 @@ def main():
                 interval_seconds=args.interval_seconds
             )
             print(f"\nTWAP Complete — {len(responses)} slices executed")
+        elif args.type.upper() == "GRID":
+            if not args.lower_price or not args.upper_price or not args.grid_levels:
+                raise ValueError("GRID requires --lower_price, --upper_price and --grid_levels")
+            responses = place_grid_orders(
+                symbol=args.symbol,
+                quantity_per_grid=args.quantity,
+                lower_price=args.lower_price,
+                upper_price=args.upper_price,
+                grid_levels=args.grid_levels
+            )
+            print(f"\nGrid Complete — {len(responses['buy_orders'])} BUY + {len(responses['sell_orders'])} SELL orders placed")
 
         # ── UNKNOWN ──────────────────────────────────────────────────────────
         else:
